@@ -1,9 +1,10 @@
 import pygame
+import random
 pygame.init()
 #banco de variáveis
 tela_largura = 950
 tela_altura = 700
-
+prot_altura_original = 150
 prot_altura = 150
 prot_largura = 10
 velocidade = 5
@@ -21,6 +22,22 @@ bola_raio = 15
 tela = pygame.display.set_mode((tela_largura, tela_altura))
 fps = pygame.time.Clock()
 rodando = True
+
+#função dos powerups
+powerup_ativo = False
+powerup_x = 0
+powerup_y = 0
+powerup_tamanho = 40
+powerup_tempo = 0          
+powerup_intervalo = 180 
+powerup_efeito = None 
+powerup_efeito_tempo = 0
+def powerspwn():
+    global powerup_ativo, powerup_tempo, powerup_x, powerup_y
+    powerup_x = random.randint(50, tela_largura - 50)
+    powerup_y = random.randint(50, tela_altura - 50)
+    powerup_tempo = 300
+    powerup_ativo = True
 
 #loop principal
 while rodando:
@@ -72,4 +89,61 @@ while rodando:
     if pontos_p1 >= pontos_vit or pontos_p2 >= pontos_vit:
         rodando = False
 
+    #powerups
+    if not powerup_ativo:
+        if random.randint(0, powerup_intervalo) == 0:
+            powerspwn()
+    
+    else:
+        powerup_tempo -= 1
+        if powerup_tempo <= 0:
+            powerup_ativo = False
+
+    if powerup_ativo:
+        powerup_rect = pygame.draw.rect(tela, (0,255,0),(powerup_x, powerup_y, powerup_tamanho, powerup_tamanho))
+    
+    if powerup_ativo and bola_rect.colliderect(powerup_rect):
+        powerup_ativo = False
+
+        efeito = random.choice(["velocidade+","colisão maior","velocidade-","colisão menor"])
+
+        if efeito == "velocidade+":
+            bola_velx *= 2
+            bola_vely *= 2
+            powerup_efeito = "velocidade+"
+            powerup_efeito_tempo = 300
+        
+        elif efeito == "colisão maior":
+            prot_altura = max(50, prot_altura + 100)
+            powerup_efeito = "colisão maior"
+            powerup_efeito_tempo = 300
+
+        elif efeito == "colisão menor":
+            prot_altura = max (50, prot_altura / 2)
+            powerup_efeito = "colisão menor"
+            powerup_efeito_tempo = 300
+
+        elif efeito == "velocidade-":
+            bola_velx /= 2
+            bola_vely /= 2
+            powerup_efeito = "velocidade-"
+            powerup_efeito_tempo = 300
+        
+    if powerup_efeito is not None:
+            powerup_efeito_tempo -= 1
+
+            if powerup_efeito_tempo <= 0:
+                
+                if powerup_efeito in ["colisão maior","colisão menor"]:
+                    prot_altura = prot_altura_original               
+                elif powerup_efeito == "velocidade+":
+                    bola_velx /= 2
+                    bola_vely /= 2
+                elif powerup_efeito == "velocidade-":
+                    bola_vely *= 1.5
+                    bola_velx *= 1.5
+
+                powerup_efeito = None   
+            
+   
     pygame.display.flip()
