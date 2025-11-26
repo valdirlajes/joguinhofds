@@ -75,17 +75,24 @@ while rodando:
     placar_texto = font.render(f"{pontos_p1}     {pontos_p2}", True,(255,255,255))
     tela.blit(placar_texto, (tela_largura // 2 - 50, 20))
     bola = pygame.draw.circle(tela, (255,255,255), (int(bola_px), int(bola_py)), bola_raio)
-    if bola_rect.colliderect(p1) or bola_rect.colliderect(p2):
+    if bola_rect.colliderect(p1):
         bola_velx = -bola_velx
+        bola_vely += 1
+        bola_velx += 1
+    elif bola_rect.colliderect(p2):
+        bola_velx = -bola_velx
+        bola_velx -= 1
+        bola_vely -= 1       
     if bola_px < 0:
         pontos_p2 += 1
         bola_px, bola_py = tela_largura // 2, tela_altura // 2
         bola_velx = -bola_velx
+        bola_velx, bola_vely = 4.5, 4.5
     if bola_px > tela_largura:
         pontos_p1 += 1
         bola_px, bola_py = tela_largura // 2, tela_altura // 2
         bola_velx = -bola_velx
-
+        bola_velx, bola_vely = 4.5, 4.5
     if pontos_p1 >= pontos_vit or pontos_p2 >= pontos_vit:
         rodando = False
 
